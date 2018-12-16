@@ -8,11 +8,16 @@ k = 50
 epsilon = 0.5
 
 #  randomly initiate k local and global optimums in a 2-D space
-local_optimum = np.random.rand(2,k)*F
-global_optimum = np.random.rand(2,k)*F
+# local_optimum = np.random.rand(2,k)*F
+# global_optimum = np.random.rand(2,k)*F
+# np.savetxt("local_optimum.txt",local_optimum)
+# np.savetxt("global_optimum.txt",global_optimum)
+local_optimum = np.loadtxt('local_optimum.txt')
+global_optimum = np.loadtxt('global_optimum.txt')
 
-plt.scatter(local_optimum[0],local_optimum[1])
-plt.scatter(global_optimum[0],global_optimum[1])
+# print (global_optimum)
+plt.scatter(local_optimum[0],local_optimum[1],facecolors='orange')
+plt.scatter(global_optimum[0],global_optimum[1],facecolors='royalblue')
 plt.show()
 
 # calculate Di and Distar
@@ -90,6 +95,7 @@ global_filtered_out = np.setdiff1d(np.arange(k),Global_bar)
 plt.scatter(local_optimum[0][local_filtered_out],local_optimum[1][local_filtered_out],facecolors='white',edgecolor='orange',label='local_filtered out')
 plt.scatter(global_optimum[0][global_filtered_out],global_optimum[1][global_filtered_out],facecolors='white',edgecolor='royalblue',label='global_filtered_out')
 plt.legend()
+plt.savefig("Sparseed.png")
 plt.show()
 
 # Map the each point in global_bar or local_bar to its nearest neighbor with diff color
@@ -154,7 +160,7 @@ for k,v in local_center_mapping.items():
 for k,v in local_center_mapping.items():
     pt1 = Local_bar[k]
     pt2 = Global_bar[v[0]]
-    plt.plot([local_optimum[0][pt1],global_optimum[0][pt2]],[local_optimum[1][pt1],global_optimum[1][pt2]])
+    plt.plot([local_optimum[0][pt1],global_optimum[0][pt2]],[local_optimum[1][pt1],global_optimum[1][pt2]],color='m')
 
 plt.scatter(local_optimum[0][Local_bar],local_optimum[1][Local_bar],facecolors='orange',label='local_bar')
 plt.scatter(global_optimum[0][Global_bar],global_optimum[1][Global_bar],facecolors='royalblue',label= 'global_bar')
@@ -162,6 +168,7 @@ plt.scatter(global_optimum[0][Global_bar],global_optimum[1][Global_bar],facecolo
 plt.scatter(local_optimum[0][local_filtered_out],local_optimum[1][local_filtered_out],facecolors='white',edgecolor='orange',label='local_filtered out')
 plt.scatter(global_optimum[0][global_filtered_out],global_optimum[1][global_filtered_out],facecolors='white',edgecolor='royalblue',label='global_filtered_out')
 plt.legend()
+plt.savefig("Tunfiltered.png")
 plt.show()
 
 T = {}
@@ -177,7 +184,7 @@ for k,v in local_center_mapping.items():
 for k,v in T.items():
     pt1 = Local_bar[k]
     pt2 = Global_bar[v[0]]
-    plt.plot([local_optimum[0][pt1],global_optimum[0][pt2]],[local_optimum[1][pt1],global_optimum[1][pt2]])
+    plt.plot([local_optimum[0][pt1],global_optimum[0][pt2]],[local_optimum[1][pt1],global_optimum[1][pt2]],color='m')
 
 plt.scatter(local_optimum[0][Local_bar],local_optimum[1][Local_bar],facecolors='orange',label='local_bar')
 plt.scatter(global_optimum[0][Global_bar],global_optimum[1][Global_bar],facecolors='royalblue',label= 'global_bar')
@@ -185,7 +192,27 @@ plt.scatter(global_optimum[0][Global_bar],global_optimum[1][Global_bar],facecolo
 plt.scatter(local_optimum[0][local_filtered_out],local_optimum[1][local_filtered_out],facecolors='white',edgecolor='orange',label='local_filtered out')
 plt.scatter(global_optimum[0][global_filtered_out],global_optimum[1][global_filtered_out],facecolors='white',edgecolor='royalblue',label='global_filtered_out')
 plt.legend()
+plt.savefig("Tfiltered.png")
 plt.show()
 
 #  N is the net discussed in section 1.2
-N = {}
+N = set()
+for local_index in Local_bar:
+    for global_index in Global_bar:
+        distance = np.sqrt( (global_optimum[0][global_index]-local_optimum[0][local_index])**2 + (global_optimum[1][global_index]-local_optimum[1][local_index])**2     )
+        if distance<= Di[local_index]/epsilon and Distar[global_index]>= epsilon* Di[local_index]:
+            N.add((global_index,local_index))
+
+for pair in N:
+    global_index = pair[0]
+    local_index = pair[1]
+    plt.plot([local_optimum[0][local_index],global_optimum[0][global_index]],[local_optimum[1][local_index],global_optimum[1][global_index]],color='lawngreen')
+
+plt.scatter(local_optimum[0][Local_bar],local_optimum[1][Local_bar],facecolors='orange',label='local_bar')
+plt.scatter(global_optimum[0][Global_bar],global_optimum[1][Global_bar],facecolors='royalblue',label= 'global_bar')
+
+plt.scatter(local_optimum[0][local_filtered_out],local_optimum[1][local_filtered_out],facecolors='white',edgecolor='orange',label='local_filtered out')
+plt.scatter(global_optimum[0][global_filtered_out],global_optimum[1][global_filtered_out],facecolors='white',edgecolor='royalblue',label='global_filtered_out')
+plt.legend()
+plt.savefig("N.png")
+plt.show()
